@@ -1,76 +1,36 @@
-{% load static from staticfiles %}
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="{% static "css/fullcalendar.css" %}" media="screen" />
-    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.css" %}" />
-    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-responsive.min.css" %}" />
-    <script type='text/javascript' src="{% static "js/jquery.js" %}"></script>
-    <script type='text/javascript' src="{% static "js/fullcalendar.js" %}"></script>
-    <script type='text/javascript'>
-    $(document).ready(function() {
-        $('#calendar').fullCalendar({
-            events: [
-        	{
-                title  : 'event1',
-                start  : '2013-07-21'
-            },
-            {
-                title  : 'event2',
-                start  : '2010-01-05',
-                end    : '2010-01-07'
-            },
-            {
-                title  : 'event3',
-                start  : '2010-01-09 12:30:00',
-                allDay : false // will make the time show
-            }]
-        })
+{% extends "base_reserva.html" %}
 
-    });
-    </script>
-</head>
-
-<body>
-        <div class='container' id='form'>
-    	    <form class="form-horizontal well" action="api/reservar" method="post">
-    	        <fieldset>
-    	        <legend>Reservar Sala</legend>
-                <div class="control-group required">
-                    <label class="control-label" for="id_descripcion">Descripcion</label>
-                    <div class="controls">
-                        <input class="required" id="id_descripcion" maxlength="255" name="descripcion" type="text" />
-                    </div>
-                </div>
-
-                <div class="control-group required">
-                    <label class="control-label" for="id_fecha">Fecha</label>
-                    <div class="controls">
-                        <input class="required" id="id_fecha" maxlength="10" name="fecha" type="text" />
-                    </div>
-                </div>
-
-                <div class="control-group required">
-                    <label class="control-label" for="id_hora_inicio">Hora Inicio</label>
-                    <div class="controls">
-                        <input class="required" id="id_hora_inicio" maxlength="8" name="hora_inicio" type="text" />
-                    </div>
-                </div>
-
-                <div class="control-group required">
-                    <label class="control-label" for="id_hora_fin">Hora Fin</label>
-                    <div class="controls">
-                        <input class="required" id="id_hora_fin" maxlength="8" name="hora_fin" type="text" />
-                    </div>
-                </div>
-                </fieldset>
-                <div class="form-actions">
-                  <input type="submit" value="Submit" class="btn btn-primary" />
-               </div>
-            </form>
-
+{% block content %}
+<form class="form-horizontal" action="api/reservar" method="post" id="salaform">{% csrf_token %}
+    <fieldset>
+    <legend>Reservar Sala</legend>
+    <div class="control-group required">
+        <label class="control-label" for="id_description">Descripcion</label>
+        <div class="controls">
+            <input class="required" id="id_description" maxlength="255" name="description" type="text" />
         </div>
-        <div class='container' id='calendar'></div>
-</body>
-
-</html>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_fecha">Fecha</label>
+        <div class="controls">
+            <input type="text" id="id_fecha" name="fecha" class="input-medium" readonly>
+        </div>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_hora_inicio">Hora Inicio</label>
+        <div class="controls">
+            <input type="text" id="id_hora_inicio" name="hora_inicio" class="input-medium" readonly>
+        </div>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_hora_fin">Hora Fin</label>
+        <div class="controls">
+            <input type="text" id="id_hora_fin" name="hora_fin" class="input-medium" readonly>
+        </div>
+    </div>
+    </fieldset>
+    <div class="form-actions">
+        <input type="submit" value="Submit" class="btn btn-primary" />
+    </div>
+</form>
+{% endblock %}

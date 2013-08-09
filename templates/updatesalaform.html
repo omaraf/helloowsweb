@@ -1,0 +1,38 @@
+{% extends "base_updel.html" %}
+
+{% block content %}
+<form class="form-horizontal" action="" method="post" id="updatesalaform" data-behavior="confirm">{% csrf_token %}
+    <fieldset>
+    <legend>Modificar Reserva Sala</legend>
+    <input id="id" name="id" type="hidden" value="{{ id }}" />
+    <div class="control-group required">
+        <label class="control-label" for="id_description">Descripcion</label>
+        <div class="controls">
+            <input class="required" id="id_description" maxlength="255" name="description" type="text" value="{{ description }}" />
+        </div>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_fecha">Fecha</label>
+        <div class="controls">
+            <input type="text" id="id_fecha" name="fecha" class="input-medium" value="{{ fecha }}" readonly>
+        </div>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_hora_inicio">Hora Inicio</label>
+        <div class="controls">
+            <input type="text" id="id_hora_inicio" name="hora_inicio" class="input-medium" value="{{ hora_inicio|time:"H:i" }}" readonly>
+        </div>
+    </div>
+    <div class="control-group required">
+        <label class="control-label" for="id_hora_fin">Hora Fin</label>
+        <div class="controls">
+            <input type="text" id="id_hora_fin" name="hora_fin" class="input-medium" value="{{ hora_fin|time:"H:i" }}" readonly>
+        </div>
+    </div>
+    </fieldset>
+    <div class="form-actions">
+        <button class="btn btn-danger confirm-toggle" id="deletebutton">Delete</button>
+        <button class="btn btn-primary confirm-toggle" id="updatebutton">Actualizar</button>
+    </div>
+</form>
+{% endblock %}

@@ -6,7 +6,7 @@ from pagos.models import Pago
 from accounts.models import MyProfile
 from rest_framework import status
 from serializers import SalaSerializer
-import datetime,time
+import datetime
 from django.db.models import Q
 from django.core.exceptions import MultipleObjectsReturned
 from dateutil.relativedelta import relativedelta
@@ -96,34 +96,8 @@ class reservar_sala(APIView):
         else:
             return Response(serializer.errors,status=400)
 
-    def get(self , request, format=None):
-        print "GET"
-        data = request.GET.copy()
-        data['user'] = request.user.id
-        print data
-        if not data.get('id'):
-            return Response("{'Error':'Missing Data'}",status=status.HTTP_409_CONFLICT)
-
-        try:
-            reserv = Sala.objects.get(pk=data['id'])
-        except Sala.DoesNotExist:
-            return Response("{'Error':'Not Exists'}",status=status.HTTP_409_CONFLICT)
-
-        if not request.user.is_superuser:
-            if data['user'] != reserv.user_id:
-                return Response("{'Error':'UNAUTHORIZED'}",status=status.HTTP_401_UNAUTHORIZED)
-
-        serializer = SalaSerializer(reserv)
-        return Response(serializer.data)
-
-class reservar_salaupdate(APIView):
-
-    authentication_classes = (authentication.SessionAuthentication,authentication.TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def post( self, request, format=None):
+    def put( self, request, format=None):
         data = request.DATA.copy()
-        print data
         data['user'] = request.user.id
         if not data.get('id') or not data.get('fecha') or not data.get('hora_inicio') or not data.get('hora_fin'):
             return Response("{'Error':'Missing Data'}",status=status.HTTP_409_CONFLICT)
@@ -140,6 +114,7 @@ class reservar_salaupdate(APIView):
         #Overlap Check
         fecha_inicio_res = datetime.datetime.strptime( data['fecha_inicio'],'%Y-%m-%d %H:%M')
         fecha_fin_res = datetime.datetime.strptime( data['fecha_fin'],'%Y-%m-%d %H:%M' )
+
 
         if fecha_inicio_res >= fecha_fin_res:
             return Response("{'error':'check times'}",status=status.HTTP_409_CONFLICT)
@@ -190,7 +165,7 @@ class reservar_salaupdate(APIView):
             horas_sala = Sala.objects.filter( fecha_inicio__range=[fecha_inicio_pago,fecha_fin_pago])
 
             for sala in horas_sala:
-                if sala.id != reserv.id:
+                if sala.id != reserv.id: 
                     total_horas_sala += sala.fecha_fin - sala.fecha_inicio
 
             if total_horas_sala > total_hours:
@@ -199,56 +174,28 @@ class reservar_salaupdate(APIView):
         serializer = SalaSerializer(reserv,data={'user':data['user'],'description':data['description'],'fecha_inicio':data['fecha_inicio'],'fecha_fin':data['fecha_fin']})
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data,status=status.HTTP_202_ACCEPTED)
+            return Response(serializer.data)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class reservar_saladelete(APIView):
-
-    authentication_classes = (authentication.SessionAuthentication,authentication.TokenAuthentication,)
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def post( self, request, format=None):
-        data = request.DATA.copy()
+    def get(self , request, format=None):
+        data = request.GET.copy()
         data['user'] = request.user.id
-        if not data.get('id') or not data.get('fecha') or not data.get('hora_inicio') or not data.get('hora_fin'):
+        print data
+        if not data.get('id'):
             return Response("{'Error':'Missing Data'}",status=status.HTTP_409_CONFLICT)
 
-        
-        
         try:
             reserv = Sala.objects.get(pk=data['id'])
         except Sala.DoesNotExist:
             return Response("{'Error':'Not Exists'}",status=status.HTTP_409_CONFLICT)
 
-        data['fecha_inicio'] = data['fecha']+' '+data['hora_inicio']
-        data['fecha_fin'] = data['fecha']+' '+data['hora_fin']
-
-        fecha_inicio_res = datetime.datetime.strptime( data['fecha_inicio'],'%Y-%m-%d %H:%M')
-        fecha_fin_res = datetime.datetime.strptime( data['fecha_fin'],'%Y-%m-%d %H:%M' )
-
-        now = datetime.datetime.now()
-        if now > reserv.fecha_inicio:
-            return Response("{'Error':'El tiempo para modificar este registro a expirado'}",status=status.HTTP_409_CONFLICT)
-
         if not request.user.is_superuser:
             if data['user'] != reserv.user_id:
                 return Response("{'Error':'UNAUTHORIZED'}",status=status.HTTP_401_UNAUTHORIZED)
 
-            try:
-                hours = MyProfile.objects.get(user_id=data['user'])
-            except MyProfile.DoesNotExist:
-                return Response("{'Error':'No Profile'}",status=status.HTTP_409_CONFLICT)
-
-            fecha_sala = datetime.date( year=fecha_inicio_res.year, month=fecha_inicio_res.month, day=fecha_inicio_res.day)
-
-            try:
-                pago = Pago.objects.get( fecha_pago__lte=fecha_sala , fecha_expiracion__gte=fecha_sala)
-            except Pago.DoesNotExist:
-                return Response("{'Error':'No Pago'}",status=status.HTTP_409_CONFLICT)
-
-        reserv.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        serializer = SalaSerializer(reserv)
+        return Response(serializer.data)
 
 @login_required      
 def show_reserv_sala(request, id):
@@ -268,7 +215,7 @@ def show_reserv_sala(request, id):
 
     print reserv.fecha_inicio.time()
     print datetime.datetime.now()
-    return render( request,'updatesalaform.html',{'id':id,'fecha':str(reserv.fecha_inicio.date()),'description':reserv.description,'hora_inicio':reserv.fecha_inicio.time(),'hora_fin':reserv.fecha_fin.time()})
+    return render( request,'updatesalaform.html',{'id':id,'fecha':str(reserv.fecha_inicio.date()),'description':reserv.description,'hora_inicio':str(reserv.fecha_inicio.time()),'hora_fin':str(reserv.fecha_fin.time())})
 
     
 
@@ -338,6 +285,7 @@ class listreservas(APIView):
 
         s = []
         for res in reserv_list:
+            print str(res.id)."hola"
             if not request.user.is_superuser:
                 if request.user.id != res.user_id:
                     s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False})
@@ -346,12 +294,12 @@ class listreservas(APIView):
                     if now > res.fecha_inicio:
                         s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False})
                     else:
-                        s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False,'url':"/reservar/show/" + str(res.id)})
+                        s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False,'url':'http://'.join[request.META['HTTP_HOST'],'/reservar/show/',res.id]})
             else:
                 now = datetime.datetime.now()
                 if now > res.fecha_inicio:
                     s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False})
                 else:
-                    s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False,'url':"/reservar/show/" + str(res.id)})
+                    s.append({'id':res.id,'title':res.description,'start':str(res.fecha_inicio),'end':str(res.fecha_fin),'allDay':False,'url':"/reservar/show/".res.id.read()})
 
         return JSONResponse(s)

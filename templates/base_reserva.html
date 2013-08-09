@@ -1,0 +1,33 @@
+{% load static from staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static "css/fullcalendar.css" %}" media="screen" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-responsive.min.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-formhelpers.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-formhelpers-countries.flags.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap-formhelpers-currencies.flags.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/docs.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/jquery.ui.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "css/google-code-prettify/prettify.css" %}" />   
+</head>
+<body>
+    <div class='container' id='form'>
+        {% block content %}{% endblock %}
+        <div class="controls">
+            <div id='outputform'></div>
+        </div>
+    </div>
+    <div class='container' id='calendar'></div>
+    <script type='text/javascript' src="{% static "js/jquery.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/jquery.ui.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/prettify.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/bootstrap.js" %}"></script>
+    <script type='text/javascript' src="{% static "js/fullcalendar.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/calendar.ini.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery.form.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/submit.form.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/jquery-ui-timepicker-addon.js" %}"></script>
+    <script type="text/javascript" src="{% static "js/date_time_picker.ini.js" %}"></script>
+</body>
